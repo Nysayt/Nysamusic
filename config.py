@@ -26,7 +26,7 @@ class Config:
         self.SUPPORT_CHAT = getenv("SUPPORT_CHAT", "https://t.me/mecochat")
 
         self.API_URL = getenv("API_URL", "https://api.onegrab.fun")
-        self.API_KEY = getenv("API_KEY", "fbee25_3PnwnjdSUL3KGPNESb5tmApWWhfSgm4y") # Get this value from @FallenApiBot by sending /apikey
+        self.API_KEY = getenv("API_KEY", "f93e73_DsH4z1mp5Hy1j6Cxx-rX9ficB6X6L6Q2") # Get this value from @FallenApiBot by sending /apikey
 
         self.AUTO_LEAVE: bool = getenv("AUTO_LEAVE", "False").lower() == "False"
         self.AUTO_END: bool = getenv("AUTO_END", "False").lower() == "False"
