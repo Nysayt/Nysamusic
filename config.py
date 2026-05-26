@@ -14,7 +14,7 @@ class Config:
         self.LOGGER_ID = int(getenv("LOGGER_ID", 0))
         self.OWNER_ID = int(getenv("OWNER_ID", 0))
 
-        self.DURATION_LIMIT = int(getenv("DURATION_LIMIT", 60)) * 60
+        self.DURATION_LIMIT = int(getenv("DURATION_LIMIT", 14400)) * 14400
         self.QUEUE_LIMIT = int(getenv("QUEUE_LIMIT", 20))
         self.PLAYLIST_LIMIT = int(getenv("PLAYLIST_LIMIT", 20))
 
@@ -28,8 +28,8 @@ class Config:
         self.API_URL = getenv("API_URL", "https://api.onegrab.fun")
         self.API_KEY = getenv("API_KEY", "fbee25_3PnwnjdSUL3KGPNESb5tmApWWhfSgm4y") # Get this value from @FallenApiBot by sending /apikey
 
-        self.AUTO_LEAVE: bool = getenv("AUTO_LEAVE", "False").lower() == "true"
-        self.AUTO_END: bool = getenv("AUTO_END", "False").lower() == "true"
+        self.AUTO_LEAVE: bool = getenv("AUTO_LEAVE", "False").lower() == "False"
+        self.AUTO_END: bool = getenv("AUTO_END", "False").lower() == "False"
     
         self.THUMB_GEN: bool = getenv("THUMB_GEN", "True").lower() == "true"
         self.VIDEO_PLAY: bool = getenv("VIDEO_PLAY", "True").lower() == "true"
