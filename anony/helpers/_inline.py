@@ -7,6 +7,8 @@ from pyrogram import types
 
 from anony import app, config, lang
 from anony.core.lang import lang_codes
+from pyrogram.enums import ButtonStyle
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 
 class Inline:
@@ -27,11 +29,21 @@ class Inline:
         keyboard = []
         if status:
             keyboard.append(
-                [self.ikb(text=status, callback_data=f"controls status {chat_id}")]
+                [self.ikb(
+                    text=status, 
+                    callback_data=f"controls status {chat_id}",
+                    style=ButtonStyle.PRIMARY,
+                )
+                ]
             )
         elif timer:
             keyboard.append(
-                [self.ikb(text=timer, callback_data=f"controls status {chat_id}")]
+                [self.ikb(
+                    text=timer, 
+                    callback_data=f"controls status {chat_id}",
+                    style=ButtonStyle.PRIMARY,
+                )
+                ]
             )
 
         if not remove:
@@ -52,14 +64,26 @@ class Inline:
         if back:
             rows = [
                 [
-                    self.ikb(text=_lang["back"], callback_data="help back"),
-                    self.ikb(text=_lang["close"], callback_data="help close"),
+                    self.ikb(
+                        text=_lang["back"], 
+                        callback_data="help back",
+                        style=ButtonStyle.PRIMARY,
+                    ),
+                    self.ikb(
+                        text=_lang["close"], 
+                        callback_data="help close",
+                        style=ButtonStyle.DANGER,
+                    ),
                 ]
             ]
         else:
             cbs = ["admins", "auth", "blist", "lang", "ping", "play", "queue", "stats", "sudo"]
             buttons = [
-                self.ikb(text=_lang[f"help_{i}"], callback_data=f"help {cb}")
+                self.ikb(
+                    text=_lang[f"help_{i}"],
+                    callback_data=f"help {cb}",
+                    style=ButtonStyle.PRIMARY,
+                )
                 for i, cb in enumerate(cbs)
             ]
             rows = [buttons[i : i + 3] for i in range(0, len(buttons), 3)]
@@ -89,7 +113,9 @@ class Inline:
             [
                 [
                     self.ikb(
-                        text=_text, callback_data=f"controls force {chat_id} {item_id}"
+                        text=_text, 
+                        callback_data=f"controls force {chat_id} {item_id}",
+                        style=ButtonStyle.PRIMARY,
                     )
                 ]
             ]
@@ -140,12 +166,26 @@ class Inline:
                 self.ikb(
                     text=lang["add_me"],
                     url=f"https://t.me/{app.username}?startgroup=true",
+                    style=ButtonStyle.PRIMARY,
                 )
             ],
-            [self.ikb(text=lang["help"], callback_data="help")],
+            [self.ikb(
+                text=lang["help"], 
+                callback_data="help",
+                style=ButtonStyle.PRIMARY,
+            )
+            ],
             [
-                self.ikb(text=lang["support"], url=config.SUPPORT_CHAT),
-                self.ikb(text=lang["channel"], url=config.SUPPORT_CHANNEL),
+                self.ikb(
+                    text=lang["support"], 
+                    url=config.SUPPORT_CHAT,
+                    style=ButtonStyle.SUCCESS,
+                ),
+                self.ikb(
+                    text=lang["channel"], 
+                    url=config.SUPPORT_CHANNEL,
+                    style=ButtonStyle.DANGER,
+                ),
             ],
         ]
         if private:
@@ -153,7 +193,8 @@ class Inline:
                 [
                     self.ikb(
                         text=lang["source"],
-                        url="https://github.com/AnonymousX1025/AnonXMusic",
+                        url="https://t.me/Chating_Empire",
+                        style=ButtonStyle.PRIMARY,
                     )
                 ]
             ]
@@ -167,6 +208,6 @@ class Inline:
                 [
                     self.ikb(text="❐", copy_text=link),
                     self.ikb(text="Youtube", url=link),
-                ],
+               ],
             ]
-        )
+         )
