@@ -122,6 +122,8 @@
     "stats_fetching": "Fetching stats...",
     "stats_sudo": "\n\n<b>Modules:</b> {0}\n<b>Platform:</b> {1}\n<b>Ram usage:</b> <code>{2}MB | {3}GB</code>\n<b>CPU usage:</b> <code>{4}% ({5} cores)</code>\n<b>Storage:</b> <code>{6}GB | {7}GB</code>\n\n<b>Python:</b> <code>v{8}</code>\n<b>Pyrogram:</b> <code>v{9}</code>\n<b>PyTgCalls:</b> <code>v{10}</code>",
     "stats_user": "<u><b>{0} stats</b></u>\n\n<b>Assistants:</b> {1}\n<b>Auto leave:</b> {2}\n\n<b>Blocked chats:</b> {3}\n<b>Blocked users:</b> {4}\n<b>Sudo users:</b> {5}\n\n<b>Served chats:</b> {6}\n<b>Served users:</b> {7}",
+    "thumb_on": "● ᴛʜᴜᴍʙɴᴀɪʟ ᴇɴᴀʙʟᴇᴅ.",
+    "thumb_off": "● ᴛʜᴜᴍʙɴᴀɪʟ ᴅɪsᴀʙʟᴇᴅ.",
     "sudo_already": "{0} is already an sudo user.",
     "sudo_added": "Added {0} to the sudo users list.",
     "sudo_not": "{0} is not an sudo user.",
