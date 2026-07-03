@@ -102,6 +102,23 @@ async def _controls(_, query: types.CallbackQuery):
         status = query.lang["stopped"]
         reply = query.lang["play_stopped"].format(user)
 
+    elif action in ["more", "cthumb", "back"]:
+        if action == "cthumb":
+            thumb = not await db.get_thumb_mode(chat_id)
+            await db.set_thumb_mode(chat_id, thumb)
+
+        thumb = await db.get_thumb_mode(chat_id)
+
+        keyboard = buttons.controls(
+            chat_id,
+            more=action != "back",
+            thumb=thumb,
+        )
+        try:
+            return await query.edit_message_reply_markup(reply_markup=keyboard)
+        except Exception:
+            return
+
     try:
         if action in ["skip", "replay", "stop"]:
             await query.message.reply_text(reply, quote=False)
@@ -159,6 +176,8 @@ async def _settings_cb(_, query: types.CallbackQuery):
     chat_id = query.message.chat.id
     _admin = await db.get_play_mode(chat_id)
     _delete = await db.get_cmd_delete(chat_id)
+    _vclog = await db.get_vclogger(chat_id)
+    _thumbnail = await db.get_thumb_mode(chat_id)
     _language = await db.get_lang(chat_id)
 
     if cmd[1] == "delete":
@@ -167,11 +186,20 @@ async def _settings_cb(_, query: types.CallbackQuery):
     elif cmd[1] == "play":
         await db.set_play_mode(chat_id, _admin)
         _admin = not _admin
+    elif cmd[1] == "vclog":
+        _vclog = not _vclog
+        await db.set_vclogger(chat_id, _vclog)
+    elif cmd[1] == "thumb":
+        _thumbnail = not _thumbnail
+        await db.set_thumb_mode(chat_id, _thumbnail)
+
     await query.edit_message_reply_markup(
         reply_markup=buttons.settings_markup(
             query.lang,
             _admin,
             _delete,
+            _vclog,
+            _thumbnail,
             _language,
             chat_id,
         )
