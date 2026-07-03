@@ -3,6 +3,8 @@
 # This file is part of AnonXMusic
 
 
+import asyncio
+
 from ntgcalls import (ConnectionNotFound, TelegramServerError,
                       RTMPStreamingUnsupported, ConnectionError)
 from pyrogram.errors import (ChatSendMediaForbidden, ChatSendPhotosForbidden,
@@ -51,11 +53,16 @@ class TgCall(PyTgCalls):
     ) -> None:
         client = await db.get_assistant(chat_id)
         _lang = await lang.get_lang(chat_id)
+        _thumb_mode = await db.get_thumb_mode(chat_id)
         _thumb = (
-            await thumb.generate(media)
-            if isinstance(media, Track)
-            else config.DEFAULT_THUMB
-        ) if config.THUMB_GEN else None
+            (
+                await thumb.generate(media)
+                if isinstance(media, Track)
+                else config.DEFAULT_THUMB
+            )
+            if config.THUMB_GEN and _thumb_mode
+            else None
+        )
 
         if not media.file_path:
             await message.edit_text(_lang["error_no_file"].format(config.SUPPORT_CHAT))
@@ -182,10 +189,38 @@ class TgCall(PyTgCalls):
         return round(sum(pings) / len(pings), 2)
 
 
+    async def _delete_msg(self, message: Message, delay: int = 2):
+        await asyncio.sleep(delay)
+        try:
+            await message.delete()
+        except Exception:
+            pass
+
     async def decorators(self, client: PyTgCalls) -> None:
         @client.on_update()
         async def update_handler(_, update: types.Update) -> None:
-            if isinstance(update, types.StreamEnded):
+            if isinstance(update, types.UpdatedGroupCallParticipant):
+                if not await db.get_vclogger(update.chat_id):
+                    return
+                try:
+                    user = await app.get_users(update.participant.user_id)
+                except Exception:
+                    return
+
+                _lang = await lang.get_lang(update.chat_id)
+                if update.action == types.GroupCallParticipant.Action.JOINED:
+                    text = _lang["vclog_joined"].format(user.mention, user.id)
+                elif update.action == types.GroupCallParticipant.Action.LEFT:
+                    text = _lang["vclog_left"].format(user.mention, user.id)
+                else:
+                    return
+
+                try:
+                    sent = await app.send_message(update.chat_id, text)
+                    asyncio.create_task(self._delete_msg(sent))
+                except Exception:
+                    pass
+            elif isinstance(update, types.StreamEnded):
                 if update.stream_type == types.StreamEnded.Type.AUDIO:
                     await self.play_next(update.chat_id)
             elif isinstance(update, types.ChatUpdate):
