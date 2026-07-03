@@ -24,6 +24,8 @@ class MongoDB:
         self.admin_play = []
         self.blacklisted = []
         self.cmd_delete = []
+        self.thumb_mode = []
+        self.vclogger = {}
         self.loop = {}
         self.notified = []
         self.cache = self.db.cache
@@ -245,6 +247,52 @@ class MongoDB:
         await self.cache.update_one(
             {"_id": "logger"},
             {"$set": {"status": status}},
+            upsert=True,
+        )
+
+     # THUMBNAIL METHODS
+    async def get_thumb_mode(self, chat_id: int) -> bool:
+        if chat_id not in self.thumb_mode:
+            doc = await self.chatsdb.find_one({"_id": chat_id})
+
+            # New groups: Thumbnail ON by default
+            if not doc:
+                self.thumb_mode.append(chat_id)
+                await self.chatsdb.update_one(
+                    {"_id": chat_id},
+                    {"$set": {"thumb_mode": True}},
+                    upsert=True,
+                )
+            elif doc.get("thumb_mode", True):
+                self.thumb_mode.append(chat_id)
+
+        return chat_id in self.thumb_mode
+
+    async def set_thumb_mode(self, chat_id: int, status: bool = False) -> None:
+        if status:
+            if chat_id not in self.thumb_mode:
+                self.thumb_mode.append(chat_id)
+        else:
+            if chat_id in self.thumb_mode:
+                self.thumb_mode.remove(chat_id)
+        await self.chatsdb.update_one(
+            {"_id": chat_id},
+            {"$set": {"thumb_mode": status}},
+            upsert=True,
+        )
+
+    # VCLOGGER METHODS
+    async def get_vclogger(self, chat_id: int) -> bool:
+        if chat_id not in self.vclogger:
+            doc = await self.chatsdb.find_one({"_id": chat_id})
+            self.vclogger[chat_id] = bool(doc and doc.get("vclogger"))
+        return self.vclogger[chat_id]
+
+    async def set_vclogger(self, chat_id: int, status: bool = False) -> None:
+        self.vclogger[chat_id] = status
+        await self.chatsdb.update_one(
+            {"_id": chat_id},
+            {"$set": {"vclogger": status}},
             upsert=True,
         )
 
