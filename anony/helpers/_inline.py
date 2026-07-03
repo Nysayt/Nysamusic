@@ -96,11 +96,6 @@ class Inline:
                         callback_data="help back",
                         style=ButtonStyle.DANGER,
                     ),
-                    self.ikb(
-                        text=_lang["cancel"],
-                        callback_data="help close",
-                        style=ButtonStyle.DANGER,
-                    ),
                 ]
             ]
         else:
@@ -140,11 +135,6 @@ class Inline:
                     self.ikb(
                         text=_lang["back"],
                         callback_data="help home",
-                        style=ButtonStyle.DANGER,
-                    ),
-                    self.ikb(
-                        text=_lang["cancel"],
-                        callback_data="help close",
                         style=ButtonStyle.DANGER,
                     ),
                 ]
