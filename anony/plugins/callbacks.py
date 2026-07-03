@@ -143,14 +143,25 @@ async def _controls(_, query: types.CallbackQuery):
 @app.on_callback_query(filters.regex("help") & ~app.bl_users)
 @lang.language()
 async def _help(_, query: types.CallbackQuery):
+    await query.answer()
     data = query.data.split()
+    is_media = bool(query.message.photo or query.message.video)
+
+    async def _render(text: str, markup):
+        try:
+            if is_media:
+                return await query.edit_message_caption(
+                    caption=text, reply_markup=markup
+                )
+            return await query.edit_message_text(text=text, reply_markup=markup)
+        except Exception:
+            return
+
     if len(data) == 1:
-        return await query.answer(url=f"https://t.me/{app.username}?start=help")
+        return await _render(query.lang["help_menu"], buttons.help_markup(query.lang))
 
     if data[1] == "back":
-        return await query.edit_message_text(
-            text=query.lang["help_menu"], reply_markup=buttons.help_markup(query.lang)
-        )
+        return await _render(query.lang["help_menu"], buttons.help_markup(query.lang))
     elif data[1] == "home":
         private = query.message.chat.type == enums.ChatType.PRIVATE
         _text = (
@@ -158,12 +169,7 @@ async def _help(_, query: types.CallbackQuery):
             if private
             else query.lang["start_gp"].format(app.name)
         )
-        try:
-            return await query.edit_message_text(
-                text=_text, reply_markup=buttons.start_key(query.lang, private)
-            )
-        except Exception:
-            return
+        return await _render(_text, buttons.start_key(query.lang, private))
     elif data[1] == "close":
         try:
             await query.message.delete()
@@ -171,9 +177,8 @@ async def _help(_, query: types.CallbackQuery):
         except Exception:
             return
 
-    await query.edit_message_text(
-        text=query.lang[f"help_{data[1]}"],
-        reply_markup=buttons.help_markup(query.lang, True),
+    return await _render(
+        query.lang[f"help_{data[1]}"], buttons.help_markup(query.lang, True)
     )
 
 
