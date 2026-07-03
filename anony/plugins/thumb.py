@@ -1,7 +1,7 @@
 from pyrogram import filters, types
 
-from auro import app, db, lang
-from auro.helpers import admin_check
+from anony import app, db, lang
+from anony.helpers import admin_check
 
 
 @app.on_message(filters.command(["thumb"]) & filters.group & ~app.bl_users)
