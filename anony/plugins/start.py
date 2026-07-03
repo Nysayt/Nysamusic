@@ -55,7 +55,7 @@ async def start(_, message: types.Message):
         await db.add_chat(message.chat.id)
 
 
-@app.on_message(filters.command(["settings"]) & filters.group & ~app.bl_users)
+@app.on_message(filters.command(["settings", "playmode"]) & filters.group & ~app.bl_users)
 @lang.language()
 @admin_check
 async def settings(_, message: types.Message):
@@ -91,3 +91,40 @@ async def _new_member(_, message: types.Message):
                 return
             await utils.send_log(message, True)
             await db.add_chat(message.chat.id)
+
+            adder = message.from_user.mention if message.from_user else "there"
+            _text = message.lang["chat_added"].format(
+                adder, app.name, message.lang["support"]
+            )
+            key = types.InlineKeyboardMarkup(
+                [
+                    [
+                        types.InlineKeyboardButton(
+                            text=message.lang["add_me"],
+                            url=f"https://t.me/{app.username}?startgroup=true",
+                        )
+                    ],
+                    [
+                        types.InlineKeyboardButton(
+                            text=message.lang["support"],
+                            url=config.SUPPORT_CHAT,
+                        )
+                    ],
+                ]
+            )
+            try:
+                await app.send_photo(
+                    chat_id=message.chat.id,
+                    photo=config.START_IMG,
+                    caption=_text,
+                    reply_markup=key,
+                )
+            except Exception:
+                try:
+                    await app.send_message(
+                        chat_id=message.chat.id,
+                        text=_text,
+                        reply_markup=key,
+                    )
+                except Exception:
+                    pass
