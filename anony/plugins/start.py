@@ -6,7 +6,7 @@ import asyncio
 from pyrogram import enums, filters, types
 
 from anony import app, config, db, lang
-from anony.helpers import buttons, utils
+from anony.helpers import admin_check, buttons, utils
 
 
 @app.on_message(filters.command(["help"]) & filters.private & ~app.bl_users)
@@ -55,7 +55,9 @@ async def start(_, message: types.Message):
         await db.add_chat(message.chat.id)
 
 
+@app.on_message(filters.command(["settings"]) & filters.group & ~app.bl_users)
 @lang.language()
+@admin_check
 async def settings(_, message: types.Message):
     admin_only = await db.get_play_mode(message.chat.id)
     cmd_delete = await db.get_cmd_delete(message.chat.id)
