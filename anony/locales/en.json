@@ -55,6 +55,7 @@
     "log_not_found": "Log file doesn't exist.",
     "log_sent": "Log file of {0}",
     "log_chat": "<u><b>● ɴᴇᴡ ᴄʜᴀᴛ ʟᴏɢ</b></u>\n\n<b>● ᴄʜᴀᴛ:</b> <code>{0}</code> | {1}\n<b>● ᴜsᴇʀ:</b> <code>{2}</code> | {3}",
+    "log_chat_left": "<u><b>● ʙᴏᴛ ʀᴇᴍᴏᴠᴇᴅ ʟᴏɢ</b></u>\n\n<b>● ᴄʜᴀᴛ:</b> <code>{0}</code> | {1}",
     "log_user": "<u><b>● ɴᴇᴡ ᴜsᴇʀ ʟᴏɢ</b></u>\n\n<b>● ɪᴅ:</b> <code>{0}</code>\n<b>● ɴᴀᴍᴇ:</b> {1} | {2}",
     "logger_on": "ʟᴏɢɢᴇʀ ᴇɴᴀʙʟᴇᴅ.",
     "logger_off": "ʟᴏɢɢᴇʀ ᴅɪsᴀʙʟᴇᴅ.",
@@ -167,4 +168,4 @@
     "help_10": "ᴠᴄ ʟᴏɢɢᴇʀ",
     "help_11": "ᴀᴜᴛᴏᴘʟᴀʏ",
     "help_thumb": "<u><b>Thumbnail commands:</b></u>\n\n/thumb [enable|disable]: Toggles the thumbnail off/on for the chat."
-, "chat_added": "ʜᴇʏ - {0},\nᴛʜɪs ɪs {1}\n\nᴛʜᴀɴᴋs ғᴏʀ ᴀᴅᴅɪɴɢ ᴍᴇ ɪɴ {2}, {1} ᴄᴀɴ ɴᴏᴡ ᴘʟᴀʏ sᴏɴɢs ɪɴ ᴛʜɪs ᴄʜᴀᴛ.",
+, "chat_added": "ʜᴇʏ - {0},\nᴛʜɪs ɪs {1}\n\nᴛʜᴀɴᴋs ғᴏʀ ᴀᴅᴅɪɴɢ ᴍᴇ ɪɴ {2}, {1} ᴄᴀɴ ɴᴏᴡ ᴘʟᴀʏ sᴏɴɢs ɪɴ ᴛʜɪs ᴄʜᴀᴛ."}
