@@ -1,7 +1,7 @@
 from pyrogram import filters, types
 
-from auro import app, db, lang
-from auro.helpers import can_manage_vc
+from anony import app, db, lang
+from anony.helpers import can_manage_vc
 
 
 @app.on_message(filters.command(["vclogger", "vclog"]) & filters.group & ~app.bl_users)
