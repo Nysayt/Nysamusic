@@ -113,9 +113,9 @@ async def _new_member(_, message: types.Message):
                 ]
             )
             try:
-                await app.send_photo(
+                await app.send_video(
                     chat_id=message.chat.id,
-                    photo=config.START_IMG,
+                    video=config.START_VIDEO,
                     caption=_text,
                     reply_markup=key,
                 )
