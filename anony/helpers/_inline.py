@@ -76,11 +76,27 @@ class Inline:
             else:
                 keyboard.append(
                     [
-                        self.ikb(text="▷", callback_data=f"controls resume {chat_id}"),
-                        self.ikb(text="II", callback_data=f"controls pause {chat_id}"),
-                        self.ikb(text="⥁", callback_data=f"controls replay {chat_id}"),
-                        self.ikb(text="‣‣I", callback_data=f"controls skip {chat_id}"),
-                        self.ikb(text="▢", callback_data=f"controls stop {chat_id}"),
+                        #self.ikb(text="▷", callback_data=f"controls resume {chat_id}"),
+                        #self.ikb(text="II", callback_data=f"controls pause {chat_id}"),
+                       # self.ikb(text="⥁", callback_data=f"controls replay {chat_id}"),
+                       # self.ikb(text="‣‣I", callback_data=f"controls skip {chat_id}"),
+                        #self.ikb(text="▢", callback_data=f"controls stop {chat_id}"),
+                    ]
+                )
+                keyboard.append(
+                    [
+                        self.ikb(
+                            text=lang["add_mee"] if lang else "Add Me",
+                            url=f"https://t.me/{app.username}?startgroup=true",
+                            style=ButtonStyle.SUCCESS,
+                            icon_custom_emoji_id=5465339480363795746,
+                        ),
+                        self.ikb(
+                            text="ᴄʟᴏsᴇ",
+                            callback_data=f"controls close {chat_id}",
+                            style=ButtonStyle.DANGER,
+                            icon_custom_emoji_id=5039614900280754969,
+                        ),
                     ]
                 )
         return self.ikm(keyboard)
