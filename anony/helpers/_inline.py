@@ -99,7 +99,7 @@ class Inline:
                 ]
             ]
         else:
-            rows = [
+            rows = []
                 
             cbs = [
                 "admins",
