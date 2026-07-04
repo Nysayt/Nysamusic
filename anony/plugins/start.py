@@ -87,8 +87,8 @@ async def _new_member(_, message: types.Message):
     await asyncio.sleep(3)
     for member in message.new_chat_members:
         if member.id == app.id:
-            if await db.is_chat(message.chat.id):
-                return
+            #if await db.is_chat(message.chat.id):
+                #return
             await utils.send_log(message, True)
             await db.add_chat(message.chat.id)
 
