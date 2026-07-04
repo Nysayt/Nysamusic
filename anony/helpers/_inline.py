@@ -100,14 +100,7 @@ class Inline:
             ]
         else:
             rows = [
-                [
-                    self.ikb(
-                        text=_lang["add_me"],
-                        url=f"https://t.me/{app.username}?startgroup=true",
-                        style=ButtonStyle.PRIMARY,
-                    )
-                ]
-            ]
+                
             cbs = [
                 "admins",
                 "auth",
