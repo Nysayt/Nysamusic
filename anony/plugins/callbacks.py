@@ -213,9 +213,9 @@ async def _settings_cb(_, query: types.CallbackQuery):
         
     elif cmd[1] == "close":
        try:
-        return await query.message.delete()
-    except Exception:
-        return
+         return await query.message.delete()
+       except Exception:
+         return
 
     await query.edit_message_reply_markup(
         reply_markup=buttons.settings_markup(
