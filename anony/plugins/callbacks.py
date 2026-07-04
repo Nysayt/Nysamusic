@@ -212,7 +212,7 @@ async def _settings_cb(_, query: types.CallbackQuery):
         await db.set_thumb_mode(chat_id, _thumbnail)
         
     elif cmd[1] == "close":
-    try:
+       try:
         return await query.message.delete()
     except Exception:
         return
