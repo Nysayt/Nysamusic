@@ -103,13 +103,13 @@ async def _new_member(_, message: types.Message):
                             text=message.lang["add_me"],
                             url=f"https://t.me/{app.username}?startgroup=true",
                             style=ButtonStyle.PRIMARY,
-                        )
+                        ),
                         types.InlineKeyboardButton(
                             text=message.lang["support"],
                             url=config.SUPPORT_CHAT,
                             style=ButtonStyle.SUCCESS,
-                        )
-                    ],
+                        ),
+                    ]
                 ]
             )
             try:
