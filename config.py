@@ -22,8 +22,8 @@ class Config:
         self.SESSION2 = getenv("SESSION2", None)
         self.SESSION3 = getenv("SESSION3", None)
 
-        self.SUPPORT_CHANNEL = getenv("SUPPORT_CHANNEL", "https://t.me/rossy_music_world")
-        self.SUPPORT_CHAT = getenv("SUPPORT_CHAT", "https://t.me/Aurosupport")
+        self.SUPPORT_CHANNEL = getenv("SUPPORT_CHANNEL", "https://t.me/StylishNameFont")
+        self.SUPPORT_CHAT = getenv("SUPPORT_CHAT", "https://t.me/+aUamAA43_p4xMWE1")
 
         self.API_URL = getenv("API_URL", "https://api.onegrab.fun")
         self.API_KEY = getenv("API_KEY", "fbee25_x8FqJTStnOF5Ry5vGzMXTbR8zmuJ0H29") # Get this value from @FallenApiBot by sending /apikey
@@ -41,7 +41,7 @@ class Config:
             if url and "batbin.me" in url
         ]
         self.DEFAULT_THUMB = getenv("DEFAULT_THUMB", "https://te.legra.ph/file/3e40a408286d4eda24191.jpg")
-        self.PING_IMG = getenv("PING_IMG", "https://files.catbox.moe/haagg2.png")
+        self.PING_IMG = getenv("PING_IMG", "https://graph.org//file/389a372e8ae039320ca6c.png")
         self.START_VIDEO = getenv("START_VIDEO", "https://graph.org/file/ad15e8b2f052e78256339-0c87eb7568d3e947e7.mp4")
 
     def check(self):
