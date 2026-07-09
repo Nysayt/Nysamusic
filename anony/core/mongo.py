@@ -17,19 +17,18 @@ class MongoDB:
         Initialize the MongoDB connection.
         """
         self.mongo = AsyncMongoClient(config.MONGO_URL, serverSelectionTimeoutMS=12500)
-        self.db = self.mongo.auro
+        self.db = self.mongo.AnieXErica
 
         self.admin_list = {}
         self.active_calls = {}
         self.admin_play = []
+        self.auto_play = []
         self.blacklisted = []
         self.cmd_delete = []
-        self.thumb_mode = []
-        self.vclogger = {}
-        self.loop = {}
         self.notified = []
         self.cache = self.db.cache
         self.logger = False
+        self.leaving = False
 
         self.assistant = {}
         self.assistantdb = self.db.assistant
@@ -87,11 +86,32 @@ class MongoDB:
             self.admin_list[chat_id] = await reload_admins(chat_id)
         return self.admin_list[chat_id]
 
-    async def get_loop(self, chat_id: int) -> int:
-        return self.loop.get(chat_id, 0)
+    # AUTO LEAVE METHODS
+    async def auto_leave(self, check: bool = False) -> bool:
+        if check:
+            if doc := await self.cache.find_one({"_id": "auto_leave"}):
+                self.leaving = doc.get("status", False)
+        return self.leaving
+    
+    async def set_auto_leave(self, status: bool) -> None:
+        self.leaving = status
+        await self.cache.update_one(
+            {"_id": "auto_leave"},
+            {"$set": {"status": status}},
+            upsert=True,
+        )
 
-    async def set_loop(self, chat_id: int, count: int) -> None:
-        self.loop[chat_id] = count
+    # AUTOPLAY METHODS
+    async def is_autoplay(self, chat_id: int) -> bool:
+        return chat_id in self.auto_play
+
+    async def set_autoplay(self, chat_id: int, status: bool) -> None:
+        if status:
+            if chat_id in self.auto_play: return
+            self.auto_play.append(chat_id)
+        else:
+            if chat_id not in self.auto_play: return
+            self.auto_play.remove(chat_id)
 
     # AUTH METHODS
     async def _get_auth(self, chat_id: int) -> set[int]:
@@ -135,7 +155,10 @@ class MongoDB:
 
         if chat_id not in self.assistant:
             doc = await self.assistantdb.find_one({"_id": chat_id})
-            num = doc["num"] if doc else await self.set_assistant(chat_id)
+            num = doc["num"] if doc else None
+
+            if not num or num > len(anon.clients):
+                num = await self.set_assistant(chat_id)
             self.assistant[chat_id] = num
 
         return anon.clients[self.assistant[chat_id] - 1]
@@ -143,9 +166,17 @@ class MongoDB:
     async def get_client(self, chat_id: int):
         if chat_id not in self.assistant:
             await self.get_assistant(chat_id)
-        return {1: userbot.one, 2: userbot.two, 3: userbot.three}.get(
-            self.assistant[chat_id]
-        )
+
+        num = self.assistant[chat_id]
+        if num > len(userbot.clients):
+            num = await self.set_assistant(chat_id)
+            self.assistant[chat_id] = num
+
+        return {
+            1: userbot.one, 2: userbot.two,
+            3: userbot.three, 4: userbot.three,
+            5: userbot.five,
+        }.get(num)
 
     # BLACKLIST METHODS
     async def add_blacklist(self, chat_id: int) -> None:
@@ -229,7 +260,7 @@ class MongoDB:
     async def get_lang(self, chat_id: int) -> str:
         if chat_id not in self.lang:
             doc = await self.langdb.find_one({"_id": chat_id})
-            self.lang[chat_id] = doc["lang"] if doc else config.LANG_CODE
+            self.lang[chat_id] = doc["lang"] if doc else "en"
         return self.lang[chat_id]
 
     # LOGGER METHODS
@@ -247,52 +278,6 @@ class MongoDB:
         await self.cache.update_one(
             {"_id": "logger"},
             {"$set": {"status": status}},
-            upsert=True,
-        )
-
-     # THUMBNAIL METHODS
-    async def get_thumb_mode(self, chat_id: int) -> bool:
-        if chat_id not in self.thumb_mode:
-            doc = await self.chatsdb.find_one({"_id": chat_id})
-
-            # New groups: Thumbnail ON by default
-            if not doc:
-                self.thumb_mode.append(chat_id)
-                await self.chatsdb.update_one(
-                    {"_id": chat_id},
-                    {"$set": {"thumb_mode": True}},
-                    upsert=True,
-                )
-            elif doc.get("thumb_mode", True):
-                self.thumb_mode.append(chat_id)
-
-        return chat_id in self.thumb_mode
-
-    async def set_thumb_mode(self, chat_id: int, status: bool = False) -> None:
-        if status:
-            if chat_id not in self.thumb_mode:
-                self.thumb_mode.append(chat_id)
-        else:
-            if chat_id in self.thumb_mode:
-                self.thumb_mode.remove(chat_id)
-        await self.chatsdb.update_one(
-            {"_id": chat_id},
-            {"$set": {"thumb_mode": status}},
-            upsert=True,
-        )
-
-    # VCLOGGER METHODS
-    async def get_vclogger(self, chat_id: int) -> bool:
-        if chat_id not in self.vclogger:
-            doc = await self.chatsdb.find_one({"_id": chat_id})
-            self.vclogger[chat_id] = bool(doc and doc.get("vclogger"))
-        return self.vclogger[chat_id]
-
-    async def set_vclogger(self, chat_id: int, status: bool = False) -> None:
-        self.vclogger[chat_id] = status
-        await self.chatsdb.update_one(
-            {"_id": chat_id},
-            {"$set": {"vclogger": status}},
             upsert=True,
         )
 
@@ -401,6 +386,7 @@ class MongoDB:
 
         await self.get_chats()
         await self.get_users()
+        await self.auto_leave(True)
         await self.get_blacklisted(True)
         await self.get_logger()
         logger.info("Database cache loaded.")
