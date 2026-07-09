@@ -3,8 +3,6 @@
 # This file is part of AnonXMusic
 
 
-import asyncio
-
 from ntgcalls import (ConnectionNotFound, TelegramServerError,
                       RTMPStreamingUnsupported, ConnectionError)
 from pyrogram.errors import (ChatSendMediaForbidden, ChatSendPhotosForbidden,
@@ -13,9 +11,8 @@ from pyrogram.types import InputMediaPhoto, Message
 from pytgcalls import PyTgCalls, exceptions, types
 from pytgcalls.pytgcalls_session import PyTgCallsSession
 
-from anony import (app, config, db, lang, logger,
-                   queue, thumb, userbot, yt)
-from anony.helpers import Media, Track, buttons
+from anony import app, config, db, lang, logger, queue, userbot, yt
+from anony.helpers import Media, Track, buttons, thumb
 
 
 class TgCall(PyTgCalls):
@@ -36,7 +33,7 @@ class TgCall(PyTgCalls):
         client = await db.get_assistant(chat_id)
         queue.clear(chat_id)
         await db.remove_call(chat_id)
-        await db.set_loop(chat_id, 0)
+        await db.set_autoplay(chat_id, False)
 
         try:
             await client.leave_call(chat_id, close=False)
@@ -53,16 +50,11 @@ class TgCall(PyTgCalls):
     ) -> None:
         client = await db.get_assistant(chat_id)
         _lang = await lang.get_lang(chat_id)
-        _thumb_mode = await db.get_thumb_mode(chat_id)
         _thumb = (
-            (
-                await thumb.generate(media)
-                if isinstance(media, Track)
-                else config.DEFAULT_THUMB
-            )
-            if config.THUMB_GEN and _thumb_mode
-            else None
-        )
+            await thumb.generate(media)
+            if isinstance(media, Track)
+            else config.DEFAULT_THUMB
+        ) if config.THUMB_GEN else None
 
         if not media.file_path:
             await message.edit_text(_lang["error_no_file"].format(config.SUPPORT_CHAT))
@@ -146,18 +138,14 @@ class TgCall(PyTgCalls):
         media = queue.get_current(chat_id)
         _lang = await lang.get_lang(chat_id)
         msg = await app.send_message(chat_id=chat_id, text=_lang["play_again"])
-        media.message_id = msg.id
         await self.play_media(chat_id, msg, media)
 
 
     async def play_next(self, chat_id: int) -> None:
-        if loop := await db.get_loop(chat_id):
-            await db.set_loop(chat_id, loop - 1)
-            return await self.replay(chat_id)
-
+        curr = queue.get_current(chat_id)
         media = queue.get_next(chat_id)
         try:
-            if media.message_id:
+            if media and media.message_id:
                 await app.delete_messages(
                     chat_id=chat_id,
                     message_ids=media.message_id,
@@ -167,15 +155,25 @@ class TgCall(PyTgCalls):
         except Exception:
             pass
 
-        if not media:
-            return await self.stop(chat_id)
-
+        autoplay = await db.is_autoplay(chat_id)
         _lang = await lang.get_lang(chat_id)
+        if not media and not autoplay:
+            return await self.stop(chat_id)
+        elif autoplay and not media:
+            _type = isinstance(curr, Track)
+            if not _type:
+                return await self.stop(chat_id)
+            media = await yt.get_next(curr.id)
+            if not media:
+                return await self.stop(chat_id)
+            media.user = _lang["autoplay"]
+            queue.force_add(chat_id, media)
+
         msg = await app.send_message(chat_id=chat_id, text=_lang["play_next"])
         if not media.file_path:
             media.file_path = await yt.download(media.id, video=media.video)
             if not media.file_path:
-                await self.play_next(chat_id)
+                await self.stop(chat_id)
                 return await msg.edit_text(
                     _lang["error_no_file"].format(config.SUPPORT_CHAT)
                 )
@@ -189,38 +187,10 @@ class TgCall(PyTgCalls):
         return round(sum(pings) / len(pings), 2)
 
 
-    async def _delete_msg(self, message: Message, delay: int = 2):
-        await asyncio.sleep(delay)
-        try:
-            await message.delete()
-        except Exception:
-            pass
-
     async def decorators(self, client: PyTgCalls) -> None:
         @client.on_update()
         async def update_handler(_, update: types.Update) -> None:
-            if isinstance(update, types.UpdatedGroupCallParticipant):
-                if not await db.get_vclogger(update.chat_id):
-                    return
-                try:
-                    user = await app.get_users(update.participant.user_id)
-                except Exception:
-                    return
-
-                _lang = await lang.get_lang(update.chat_id)
-                if update.action == types.GroupCallParticipant.Action.JOINED:
-                    text = _lang["vclog_joined"].format(user.mention, user.id)
-                elif update.action == types.GroupCallParticipant.Action.LEFT:
-                    text = _lang["vclog_left"].format(user.mention, user.id)
-                else:
-                    return
-
-                try:
-                    sent = await app.send_message(update.chat_id, text)
-                    asyncio.create_task(self._delete_msg(sent))
-                except Exception:
-                    pass
-            elif isinstance(update, types.StreamEnded):
+            if isinstance(update, types.StreamEnded):
                 if update.stream_type == types.StreamEnded.Type.AUDIO:
                     await self.play_next(update.chat_id)
             elif isinstance(update, types.ChatUpdate):
